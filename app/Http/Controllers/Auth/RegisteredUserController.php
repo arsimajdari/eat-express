@@ -46,7 +46,6 @@ class RegisteredUserController extends Controller
         $message = 'User created successfully';
         $token = [$user->createToken("API TOKEN")->plainTextToken];
 
-
         return response([
             'message' => $message,
             'token' => $token,

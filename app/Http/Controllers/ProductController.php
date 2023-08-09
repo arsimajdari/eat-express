@@ -39,7 +39,6 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-    
         $user = Auth::user();
         $cart = $user->cart;
 
@@ -49,12 +48,32 @@ class ProductController extends Controller
             "price" => 'required|numeric',
         ]);
 
-        $product = Product::create($validated);
+        $existingProduct = Product::where('name', $validated['name'])
+            ->where('color', $validated['color'])
+            ->where('price', $validated['price'])
+            ->first();
 
-        $quantity = 1; // Set the quantity as needed
-        $cart->products()->attach($product->id, ['quantity' => $quantity]);
+        if ($existingProduct) {
+            // Product exists in the database
+            $existingCartItem = $cart->products()->find($existingProduct->id);
+
+            if ($existingCartItem) {
+                // Product also exists in the cart, increase quantity by 1
+                $existingCartItem->pivot->quantity += 1;
+                $existingCartItem->pivot->save();
+            } else {
+                // Product doesn't exist in cart, add it with quantity 1
+                $cart->products()->attach($existingProduct->id, ['quantity' => 1]);
+            }
+        } else {
+            // Product doesn't exist in the database, create and add to cart
+            $product = Product::create($validated);
+            $cart->products()->attach($product->id, ['quantity' => 1]);
+        }
+
         return response(['message' => 'Product added to cart successfully'], 200);
     }
+
 
 
     /**

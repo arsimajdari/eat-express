@@ -12,11 +12,13 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
 
+    protected $addHttpCookie = true;
 
     protected $except = [
         //
-        'http://localhost:8000/register',
-        'http://localhost:8000/login',
-        'http://localhost:8000/logout'
+        // 'http://localhost:8000/register',
+        // 'http://localhost:8000/login',
+        // 'http://localhost:8000/logout',
+        // 'http://localhost:8000/api/*',
     ];
 }

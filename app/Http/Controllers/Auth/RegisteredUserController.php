@@ -40,11 +40,10 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
+        Auth::guard('web')->login($user);
 
 
         $message = 'User created successfully';
-        // $token = [$user->createToken("API TOKEN")->plainTextToken];
 
         return response([
             'message' => $message,

@@ -14,18 +14,40 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): Response
+    public function store(Request $request): Response
     {
 
-        $request->authenticate();
+        // $request->authenticate();
 
-        $request->session()->regenerate();
+        $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required'],
+        ]);
 
+
+        $this->authenticateFrontend();
         $message = 'User logged in successfully';
+
         return response([
             'message' => $message,
         ], 200);
-        
+
+
+
+        // $request->session()->regenerate();
+    }
+
+    private function authenticateFrontend()
+    {
+        if (!Auth::guard('web')
+            ->attempt(
+                request()->only('email', 'password'),
+                request()->boolean('remember')
+            )) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
+        }
     }
 
     /**
@@ -33,13 +55,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): Response
     {
-    
+
         Auth::guard('web')->logout();
 
         request()->session()->invalidate();
 
         request()->session()->regenerateToken();
         return response('Logged out successfully!', 200);
-       
     }
 }

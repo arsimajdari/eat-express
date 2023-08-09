@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -15,19 +16,16 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): Response
     {
+
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        $user = Auth::user();
-
-        $token = $user->createToken("API TOKEN")->plainTextToken;
         $message = 'User logged in successfully';
-
         return response([
             'message' => $message,
-            'token' => $token,
         ], 200);
+        
     }
 
     /**
@@ -35,12 +33,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): Response
     {
-        
-        auth()->user()->tokens()->delete();
+    
+        Auth::guard('web')->logout();
 
-        return response([
-            'message' => 'Logged out successfully!',
-            'status_code' => 200
-        ], 200);
+        request()->session()->invalidate();
+
+        request()->session()->regenerateToken();
+        return response('Logged out successfully!', 200);
+       
     }
 }

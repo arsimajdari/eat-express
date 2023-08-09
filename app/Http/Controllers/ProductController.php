@@ -39,6 +39,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+    
         $user = Auth::user();
         $cart = $user->cart;
 
@@ -52,7 +53,6 @@ class ProductController extends Controller
 
         $quantity = 1; // Set the quantity as needed
         $cart->products()->attach($product->id, ['quantity' => $quantity]);
-
         return response(['message' => 'Product added to cart successfully'], 200);
     }
 

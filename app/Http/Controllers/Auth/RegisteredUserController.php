@@ -42,14 +42,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-       
+
         $message = 'User created successfully';
-        $token = [$user->createToken("API TOKEN")->plainTextToken];
+        // $token = [$user->createToken("API TOKEN")->plainTextToken];
 
         return response([
             'message' => $message,
-            'token' => $token,
         ], 200);
-       
     }
 }

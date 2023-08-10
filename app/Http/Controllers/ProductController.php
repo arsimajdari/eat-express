@@ -82,6 +82,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         //
+        return $product->toJson();
     }
 
     /**
@@ -106,5 +107,9 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         //
+        $cart = auth()->user()->cart; // Get the cart for the logged-in user
+        $cart->products()->detach($product->id); // Remove the product from the cart
+
+        return response('Product removed from cart successfully');
     }
 }

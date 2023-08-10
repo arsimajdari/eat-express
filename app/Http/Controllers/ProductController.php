@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -104,12 +105,24 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy(Product $product, Request $request)
     {
-        //
-        $cart = auth()->user()->cart; // Get the cart for the logged-in user
-        $cart->products()->detach($product->id); // Remove the product from the cart
+        $action = $request->input('action'); // Get the action from the request
 
-        return response('Product removed from cart successfully');
+        $cart = auth()->user()->cart; // Get the cart for the logged-in user
+
+        if ($action === 'decrease') {
+            $currentQuantity = $cart->products()->where('product_id', $product->id)->first()->pivot->quantity;
+
+            if ($currentQuantity > 1) {
+                $cart->products()->updateExistingPivot($product->id, ['quantity' => DB::raw('quantity - 1')]);
+            } else {
+                $cart->products()->detach($product->id);
+            }
+        } elseif ($action === 'remove') {
+            $cart->products()->detach($product->id);
+        }
+
+        return response('Product action performed successfully');
     }
 }

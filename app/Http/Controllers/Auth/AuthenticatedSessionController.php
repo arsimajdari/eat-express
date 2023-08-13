@@ -14,39 +14,42 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(Request $request): Response
+    public function store(LoginRequest $request): Response
     {
 
-        $request->validate([
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required'],
-        ]);
+        // $request->validate([
+        //     'email' => ['required', 'string', 'email'],
+        //     'password' => ['required'],
+        // ]);
 
 
-        $this->authenticateFrontend();
-        $message = 'User logged in successfully';
+        // $this->authenticateFrontend();
+        // $message = 'User logged in successfully';
 
-        return response([
-            'message' => $message,
-        ], 200);
+        // return response([
+        //     'message' => $message,
+        // ], 200);
 
+        $request->authenticate();
 
+        $request->session()->regenerate();
 
-        // $request->session()->regenerate();
+        return response("User logged in successfully", 200);
+        
     }
 
-    private function authenticateFrontend()
-    {
-        if (!Auth::guard('web')
-            ->attempt(
-                request()->only('email', 'password'),
-                request()->boolean('remember')
-            )) {
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
-    }
+    // private function authenticateFrontend()
+    // {
+    //     if (!Auth::guard('web')
+    //         ->attempt(
+    //             request()->only('email', 'password'),
+    //             request()->boolean('remember')
+    //         )) {
+    //         throw ValidationException::withMessages([
+    //             'email' => __('auth.failed'),
+    //         ]);
+    //     }
+    // }
 
     /**
      * Destroy an authenticated session.
@@ -59,6 +62,7 @@ class AuthenticatedSessionController extends Controller
         request()->session()->invalidate();
 
         request()->session()->regenerateToken();
+
         return response('Logged out successfully!', 200);
     }
 }

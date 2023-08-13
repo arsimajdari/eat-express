@@ -14,17 +14,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
-        // Retrieve the currently logged-in user
-        $user = Auth::user();
 
-        // Get the user's cart
-        $cart = $user->cart;
-
-        // Retrieve all products in the user's cart
-        $productsInCart = $cart->products;
-
-        return $productsInCart->toJson();
+        return Product::all()->toJson();
     }
 
     /**
@@ -33,6 +24,7 @@ class ProductController extends Controller
     public function create()
     {
         //
+
     }
 
     /**
@@ -40,39 +32,47 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $cart = $user->cart;
-
         $validated = $request->validate([
-            "name" => 'required|string',
-            "color" => 'required|string',
-            "price" => 'required|numeric',
+            'name' => ['required', 'string'],
+            'sku' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
+            'long_description' => ['nullable', 'string'],
+            'categories' => ['required', 'array'],
+            'categories.*' => ['integer', 'exists:subcategories,id'],
+            'price' => ['required', 'string'],
+            'discount' => ['nullable', 'string'],
+            'available' => ['boolean'],
+            'images' => ['array', 'nullable'],
+            'images.*' => ['image', 'nullable'],
         ]);
 
-        $existingProduct = Product::where('name', $validated['name'])
-            ->where('color', $validated['color'])
-            ->where('price', $validated['price'])
-            ->first();
+        if (!is_null(Product::where('slug', Str::slug($validated['name']))->first()))
+            return response('error Product with same name already exists', 204);
 
-        if ($existingProduct) {
-            // Product exists in the database
-            $existingCartItem = $cart->products()->find($existingProduct->id);
+        $product = Product::create(array_merge($validated, ['slug' => Str::slug($validated['name'])]));
 
-            if ($existingCartItem) {
-                // Product also exists in the cart, increase quantity by 1
-                $existingCartItem->pivot->quantity += 1;
-                $existingCartItem->pivot->save();
-            } else {
-                // Product doesn't exist in cart, add it with quantity 1
-                $cart->products()->attach($existingProduct->id, ['quantity' => 1]);
-            }
-        } else {
-            // Product doesn't exist in the database, create and add to cart
-            $product = Product::create($validated);
-            $cart->products()->attach($product->id, ['quantity' => 1]);
-        }
+        if (isset($validated['categories']))
+            $product->subcategories()->sync($validated['categories']);
 
-        return response(['message' => 'Product added to cart successfully'], 200);
+        // if ($request->hasFile('images')) {
+        //     foreach ($request->file('images') as $file) {
+        //         $path = $file->storePublicly('images', 'public');
+
+        //         $image = Image::create([
+        //             'path' => $path,
+        //         ]);
+
+        //         $product->images()->save($image);
+        //     }
+        // }
+
+        // Calculate 18% VAT from gross price
+        $price = $product->discount ?? $product->price;
+        $product->tax = (($price / 1.18) - $price) * -1;
+
+        $product->save();
+
+        return response('Product created successfully', 200);
     }
 
 
@@ -107,22 +107,27 @@ class ProductController extends Controller
      */
     public function destroy(Product $product, Request $request)
     {
-        $action = $request->input('action'); // Get the action from the request
+        // $action = $request->input('action'); // Get the action from the request
 
-        $cart = auth()->user()->cart; // Get the cart for the logged-in user
+        // $cart = auth()->user()->cart; // Get the cart for the logged-in user
 
-        if ($action === 'decrease') {
-            $currentQuantity = $cart->products()->where('product_id', $product->id)->first()->pivot->quantity;
+        // if ($action === 'decrease') {
+        //     $currentQuantity = $cart->products()->where('product_id', $product->id)->first()->pivot->quantity;
 
-            if ($currentQuantity > 1) {
-                $cart->products()->updateExistingPivot($product->id, ['quantity' => DB::raw('quantity - 1')]);
-            } else {
-                $cart->products()->detach($product->id);
-            }
-        } elseif ($action === 'remove') {
-            $cart->products()->detach($product->id);
-        }
+        //     if ($currentQuantity > 1) {
+        //         $cart->products()->updateExistingPivot($product->id, ['quantity' => DB::raw('quantity - 1')]);
+        //     } else {
+        //         $cart->products()->detach($product->id);
+        //     }
+        // } elseif ($action === 'remove') {
+        //     $cart->products()->detach($product->id);
+        // }
 
-        return response('Product action performed successfully');
+        // return response('Product action performed successfully');
+
+        if ($product->trashed()) $product->forceDelete();
+        else $product->delete();
+
+        return response('Product deleted successfully', 200);
     }
 }

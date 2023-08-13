@@ -11,10 +11,35 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'color', 'price'];
+    protected $with = ['images'];
 
-    public function carts()
+    protected $fillable = [
+        'slug',
+        'name',
+        'description',
+        'long_description',
+        'price',
+        'tax',
+        'discount',
+        'sku',
+        'available',
+    ];
+
+    protected $casts = [
+        'price' => 'float',
+        'discount' => 'float',
+        'tax' => 'float',
+        'available' => 'boolean',
+    ];
+
+
+    public function subcategories()
     {
-        return $this->belongsToMany(Cart::class, 'cart_product')->withPivot('quantity');
+        return $this->belongsToMany(Subcategory::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class);
     }
 }

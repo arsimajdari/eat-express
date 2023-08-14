@@ -35,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Cart
 Route::resource('cart', CartController::class);
+Route::post('cart/add/{product}',[CartController::class,'store']);
 Route::post('cart/clear', [CartController::class, 'clear']);
 
 // Categories

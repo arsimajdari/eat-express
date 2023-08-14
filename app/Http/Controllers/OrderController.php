@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\ShippingAddress;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -123,9 +125,11 @@ class OrderController extends Controller
 
 
 
-        return response('Order created successfully', 200)->json([
+        return response()->json([
+            "message"=>"Order created successfully",
             "order_number" => $order->number,
-        ]);
+        ],200);
+        
     }
 
     /**

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
 
 class ProductController extends Controller
 {
@@ -37,22 +39,23 @@ class ProductController extends Controller
             'sku' => ['required', 'string'],
             'description' => ['nullable', 'string'],
             'long_description' => ['nullable', 'string'],
-            'categories' => ['required', 'array'],
-            'categories.*' => ['integer', 'exists:subcategories,id'],
+            // 'categories' => ['required', 'array'],
+            // 'categories.*' => ['integer', 'exists:subcategories,id'],
             'price' => ['required', 'string'],
             'discount' => ['nullable', 'string'],
             'available' => ['boolean'],
-            'images' => ['array', 'nullable'],
+            'images' => ['array', 'nullable'], 
             'images.*' => ['image', 'nullable'],
         ]);
 
+        
         if (!is_null(Product::where('slug', Str::slug($validated['name']))->first()))
             return response('error Product with same name already exists', 204);
 
         $product = Product::create(array_merge($validated, ['slug' => Str::slug($validated['name'])]));
 
-        if (isset($validated['categories']))
-            $product->subcategories()->sync($validated['categories']);
+        // if (isset($validated['categories']))
+        //     $product->subcategories()->sync($validated['categories']);
 
         // if ($request->hasFile('images')) {
         //     foreach ($request->file('images') as $file) {

@@ -37,6 +37,7 @@ class CartController extends Controller
         ]);
 
         $user = Auth::user();
+        
 
         CartItem::create([
             'user_id' => $user->id,

@@ -12,28 +12,35 @@ class PageController extends Controller
     //
 
     public function checkout(Request $request)
-    {
-        $itemsToAdd = collect(explode(",", $request->query('items')));
+{
+    $itemsToAdd = collect(explode(",", $request->query('items')));
 
-        if (!empty($request->query('items'))) {
-            foreach ($itemsToAdd as $item) {
-                $product = Product::find($item);
+    if ($itemsToAdd->isEmpty()) {
+        return response("No items specified", 400);
+    }
 
-                if (auth()->check()) {
-                    CartItem::create([
-                        'user_id' => auth()->user()->id,
-                        'product_id' => $product->id,
-                        'name' => $product->name,
-                        'tax' => $product->tax,
-                        'price' => $product->discount ? $product->discount : $product->price,
-                        'quantity' => 1,
-                    ]);
-                    return response("The item added successfully", 200);
-                } else {
-                    return response("You should be logged in to add item to cart", 400);
-                }
-            }
+    if (!auth()->check()) {
+        return response("You should be logged in to add items to the cart", 400);
+    }
+
+    foreach ($itemsToAdd as $item) {
+        $product = Product::find($item);
+
+        if ($product) {
+            CartItem::create([
+                'user_id' => auth()->user()->id,
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'tax' => $product->tax,
+                'price' => $product->discount ? $product->discount : $product->price,
+                'quantity' => 1,
+            ]);
         }
+    }
+    
+    return response("Items added to cart successfully", 200);
+
+
 
         //     $user = auth()->user();
         //     $cartItems = $request->input('cart');

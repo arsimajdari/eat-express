@@ -6,6 +6,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShippingAddressController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,29 +22,42 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Pages
-Route::get('checkout', [PageController::class, 'checkout'])->name('checkout');
-Route::get('builder', [PageController::class, 'builder'])->name('builder');
-
-// Addresses
-Route::resource('addresses', ShippingAddressController::class);
 
 
-// Orders
+
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Pages
+    Route::get('checkout', [PageController::class, 'checkout'])->name('checkout');
+    Route::get('builder', [PageController::class, 'builder'])->name('builder');
+
+    // Orders
     Route::resource('orders', OrderController::class);
+
+    // Addresses
+    Route::resource('addresses', ShippingAddressController::class);
+
+    // Cart
+    Route::resource('cart', CartController::class);
+    Route::post('cart/add/{product}',[CartController::class,'store']);
+    Route::post('cart/clear', [CartController::class, 'clear']);
+
+
 });
 
-// Cart
-Route::resource('cart', CartController::class);
-Route::post('cart/add/{product}',[CartController::class,'store']);
-Route::post('cart/clear', [CartController::class, 'clear']);
+Route::middleware(IsAdmin::class)->group(function(){
 
-// Categories
-Route::resource('categories', CategoryController::class);
+    // Products
+    Route::resource('products', ProductController::class);
 
-// Products
-Route::resource('products', ProductController::class)->middleware('auth:sanctum');
+    // Categories
+    Route::resource('categories', CategoryController::class);
+
+    //Users
+    Route::resource('users', UserController::class);
+});
+
+
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();

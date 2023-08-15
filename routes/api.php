@@ -42,13 +42,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('cart/add/{product}',[CartController::class,'store']);
     Route::post('cart/clear', [CartController::class, 'clear']);
 
+    //Products
+    Route::get('products',[ProductController::class,'index']);
+    Route::get('products/{product}',[ProductController::class,'show']);
 
 });
 
 Route::middleware(IsAdmin::class)->group(function(){
 
     // Products
-    Route::resource('products', ProductController::class);
+    Route::post('products', [ProductController::class,'store']);
+    Route::delete('products/{product}', [ProductController::class,'destroy']);
 
     // Categories
     Route::resource('categories', CategoryController::class);

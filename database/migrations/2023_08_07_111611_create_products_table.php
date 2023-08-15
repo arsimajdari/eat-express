@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('tax', 10, 2)->nullable();
             $table->string('sku')->nullable();
             $table->boolean('available')->default(false);
+            $table->string('image_src');
             $table->timestamps();
             $table->softDeletes();
         });

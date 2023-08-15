@@ -37,7 +37,7 @@ class CartController extends Controller
         ]);
 
         $user = Auth::user();
-        
+
 
         CartItem::create([
             'user_id' => $user->id,
@@ -46,6 +46,8 @@ class CartController extends Controller
             'price' => $product->discount ? $product->discount : $product->price,
             'tax' => $product->tax,
             'quantity' => $validated['quantity'],
+            'description'=>$product->description,
+            'image_src'=>$product->image_src,
         ]);
 
         return response('Item added to cart successfully', 200);
@@ -78,14 +80,16 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CartItem $item)
+    public function destroy(CartItem $cart)
     {
 
-        if ($item->user->id !== Auth::id()) {
+        // Delete a single item from cart
+
+        if ($cart->user->id !== Auth::id()) {
             return response('Item could not be removed', 400);
         }
 
-        $item->delete();
+        $cart->delete();
 
         return response('Item removed successfully from cart', 200);
     }

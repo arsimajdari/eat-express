@@ -23,6 +23,7 @@ class Product extends Model
         'discount',
         'sku',
         'available',
+        'image_src',
     ];
 
     protected $casts = [

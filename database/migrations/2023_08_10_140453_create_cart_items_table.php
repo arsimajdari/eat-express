@@ -19,9 +19,11 @@ return new class extends Migration
             $table->foreignIdFor(Product::class);
             $table->string('code')->nullable();
             $table->string('name');
+            $table->string('description');
             $table->unsignedSmallInteger('quantity')->default('1');
             $table->decimal('price', 10, 2);
             $table->decimal('tax', 10, 2);
+            $table->string('image_src');
             $table->timestamps();
         });
     }

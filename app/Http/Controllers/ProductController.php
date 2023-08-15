@@ -41,14 +41,15 @@ class ProductController extends Controller
             'long_description' => ['nullable', 'string'],
             // 'categories' => ['required', 'array'],
             // 'categories.*' => ['integer', 'exists:subcategories,id'],
+            'image_src'=>['required','string'],
             'price' => ['required', 'string'],
             'discount' => ['nullable', 'string'],
             'available' => ['boolean'],
-            'images' => ['array', 'nullable'], 
+            'images' => ['array', 'nullable'],
             'images.*' => ['image', 'nullable'],
         ]);
 
-        
+
         if (!is_null(Product::where('slug', Str::slug($validated['name']))->first()))
             return response('error Product with same name already exists', 204);
 

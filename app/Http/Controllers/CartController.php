@@ -31,27 +31,37 @@ class CartController extends Controller
      */
     public function store(Product $product, Request $request)
     {
-        //
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:0', 'max:10'],
         ]);
 
         $user = Auth::user();
 
+        $existingCartItem = CartItem::where('user_id', $user->id)
+            ->where('product_id', $product->id)
+            ->first();
 
-        CartItem::create([
-            'user_id' => $user->id,
-            'product_id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->discount ? $product->discount : $product->price,
-            'tax' => $product->tax,
-            'quantity' => $validated['quantity'],
-            'description'=>$product->description,
-            'image_src'=>$product->image_src,
-        ]);
+        if ($existingCartItem) {
+            // Update the existing cart item's quantity
+            $existingCartItem->quantity += $validated['quantity'];
+            $existingCartItem->save();
+        } else {
+            // Create a new cart item
+            CartItem::create([
+                'user_id' => $user->id,
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->discount ? $product->discount : $product->price,
+                'tax' => $product->tax,
+                'quantity' => $validated['quantity'],
+                'description' => $product->description,
+                'image_src' => $product->image_src,
+            ]);
+        }
 
         return response('Item added to cart successfully', 200);
     }
+
 
     /**
      * Display the specified resource.

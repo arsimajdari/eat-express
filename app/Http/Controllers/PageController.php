@@ -6,6 +6,7 @@ use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
@@ -13,51 +14,49 @@ class PageController extends Controller
 
     public function checkout(Request $request)
     {
-        $itemsToAdd = collect(explode(",", $request->query('items')));
+        $user = Auth::user();
+        $itemsToAdd = $request->input('items');
 
-        if ($itemsToAdd->isEmpty()) {
+        if (empty($itemsToAdd)) {
             return response("No items specified", 400);
         }
 
-        if (!auth()->check()) {
-            return response("You should be logged in to add items to the cart", 400);
-        }
-
         foreach ($itemsToAdd as $item) {
-            $product = Product::find($item);
+            $productId = $item['id'];
+            $quantity = $item['quantity'];
 
-            if ($product) {
+            $product = Product::find($productId);
+
+            if (!$product) {
+                continue; // Skip processing if the product doesn't exist
+            }
+
+            $existingCartItem = CartItem::where('user_id', $user->id)
+                ->where('product_id', $product->id)
+                ->first();
+
+            if ($existingCartItem) {
+                // Update the existing cart item's quantity
+                $existingCartItem->quantity += $quantity;
+                $existingCartItem->save();
+            } else {
+                // Create a new cart item
                 CartItem::create([
-                    'user_id' => auth()->user()->id,
-                    'image_src' => $product->image_src,
+                    'user_id' => $user->id,
                     'product_id' => $product->id,
                     'name' => $product->name,
-                    'tax' => $product->tax,
-                    'description' => $product->description,
                     'price' => $product->discount ? $product->discount : $product->price,
-                    'quantity' => 1,
+                    'tax' => $product->tax,
+                    'quantity' => $quantity,
+                    'description' => $product->description,
+                    'image_src' => $product->image_src,
                 ]);
             }
         }
 
         return response("Items added to cart successfully", 200);
-
-
-
-        //     $user = auth()->user();
-        //     $cartItems = $request->input('cart');
-
-        //     foreach ($cartItems as $item) {
-        //         CartItem::create([
-        //             'user_id' => $user->id,
-        //             'product_id' => $item['id'],
-        //             'quantity' => $item['quantity'],
-        //         ]);
-        //     }
-
-        //     return response()->json(['message' => 'Cart items added successfully']);
-        // }
     }
+
 
     public function builder()
     {

@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Pages
-    Route::get('checkout', [PageController::class, 'checkout'])->name('checkout');
+    Route::post('checkout', [PageController::class, 'checkout'])->name('checkout');
     Route::get('builder', [PageController::class, 'builder'])->name('builder');
 
     // Orders

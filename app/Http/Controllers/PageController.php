@@ -12,33 +12,35 @@ class PageController extends Controller
     //
 
     public function checkout(Request $request)
-{
-    $itemsToAdd = collect(explode(",", $request->query('items')));
+    {
+        $itemsToAdd = collect(explode(",", $request->query('items')));
 
-    if ($itemsToAdd->isEmpty()) {
-        return response("No items specified", 400);
-    }
-
-    if (!auth()->check()) {
-        return response("You should be logged in to add items to the cart", 400);
-    }
-
-    foreach ($itemsToAdd as $item) {
-        $product = Product::find($item);
-
-        if ($product) {
-            CartItem::create([
-                'user_id' => auth()->user()->id,
-                'product_id' => $product->id,
-                'name' => $product->name,
-                'tax' => $product->tax,
-                'price' => $product->discount ? $product->discount : $product->price,
-                'quantity' => 1,
-            ]);
+        if ($itemsToAdd->isEmpty()) {
+            return response("No items specified", 400);
         }
-    }
-    
-    return response("Items added to cart successfully", 200);
+
+        if (!auth()->check()) {
+            return response("You should be logged in to add items to the cart", 400);
+        }
+
+        foreach ($itemsToAdd as $item) {
+            $product = Product::find($item);
+
+            if ($product) {
+                CartItem::create([
+                    'user_id' => auth()->user()->id,
+                    'image_src' => $product->image_src,
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'tax' => $product->tax,
+                    'description' => $product->description,
+                    'price' => $product->discount ? $product->discount : $product->price,
+                    'quantity' => 1,
+                ]);
+            }
+        }
+
+        return response("Items added to cart successfully", 200);
 
 
 

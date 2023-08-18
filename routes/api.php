@@ -41,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('cart', CartController::class);
     Route::post('cart/add/{product}', [CartController::class, 'store']);
     Route::post('cart/clear', [CartController::class, 'clear']);
+    Route::put('cart/update/{product_id}', [CartController::class, 'updateQuantity']);
 });
 
 //Products

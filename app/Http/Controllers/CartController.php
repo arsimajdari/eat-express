@@ -85,6 +85,7 @@ class CartController extends Controller
     public function update(Request $request, CartItem $cartItem)
     {
         //
+
     }
 
     /**
@@ -109,5 +110,19 @@ class CartController extends Controller
         $user = Auth::user();
         $user->items()->delete();
         return response("Cart cleared successfully", 200);
+    }
+
+    public function updateQuantity(Request $request, $product_id)
+    {
+        $validated = $request->validate([
+            "quantity" => "required|integer|min:1",
+        ]);
+
+        $cart_item = CartItem::where('product_id', $product_id)->firstOrFail();
+
+        $cart_item->quantity = $validated["quantity"];
+        $cart_item->save(); // Save the changes
+
+        return response("Item quantity updated", 200);
     }
 }

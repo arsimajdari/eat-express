@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('cart/update/{product_id}', [CartController::class, 'updateQuantity']);
 
     //Products
-    Route::get('/getDetailedCartItems', [ProductController::class, 'getDetailedCartItems']);
+    Route::post('/getDetailedCartItems', [ProductController::class, 'getDetailedCartItems']);
 });
 
 //Products

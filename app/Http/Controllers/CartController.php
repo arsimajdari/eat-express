@@ -19,9 +19,8 @@ class CartController extends Controller
 
         $userCart = CartItem::where('user_id', $user_id)->get();
 
-        return response()->json([
-            $userCart
-        ]);
+        return response()->json($userCart);
+        // return CartItem::all();
     }
 
     /**

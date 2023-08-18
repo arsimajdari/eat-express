@@ -14,8 +14,14 @@ class CartController extends Controller
      */
     public function index()
     {
-        //
-        return CartItem::all()->toJson();
+
+        $user_id = Auth::id();
+
+        $userCart = CartItem::where('user_id', $user_id)->get();
+
+        return response()->json([
+            "cart_items" => $userCart
+        ]);
     }
 
     /**
@@ -69,6 +75,7 @@ class CartController extends Controller
     public function show(CartItem $cartItem)
     {
         //
+
     }
 
     /**

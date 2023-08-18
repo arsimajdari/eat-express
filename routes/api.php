@@ -43,7 +43,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('cart/clear', [CartController::class, 'clear']);
     Route::put('cart/update/{product_id}', [CartController::class, 'updateQuantity']);
 
-    //Products
 });
 
 //Products

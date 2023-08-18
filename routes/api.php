@@ -35,7 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('orders', OrderController::class);
 
     // Addresses
-    Route::resource('addresses', ShippingAddressController::class);
+    // Route::resource('addresses', ShippingAddressController::class);
 
     // Cart
     Route::resource('cart', CartController::class);

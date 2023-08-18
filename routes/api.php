@@ -44,12 +44,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('cart/update/{product_id}', [CartController::class, 'updateQuantity']);
 
     //Products
-    Route::post('/getDetailedCartItems', [ProductController::class, 'getDetailedCartItems']);
 });
 
 //Products
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/{product}', [ProductController::class, 'show']);
+Route::post('/getDetailedCartItems', [ProductController::class, 'getDetailedCartItems']);
 
 Route::middleware(IsAdmin::class)->group(function () {
 

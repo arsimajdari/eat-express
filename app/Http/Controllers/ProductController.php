@@ -41,7 +41,7 @@ class ProductController extends Controller
             'long_description' => ['nullable', 'string'],
             // 'categories' => ['required', 'array'],
             // 'categories.*' => ['integer', 'exists:subcategories,id'],
-            'image_src'=>['required','string'],
+            'image_src' => ['required', 'string'],
             'price' => ['required', 'string'],
             'discount' => ['nullable', 'string'],
             'available' => ['boolean'],
@@ -133,5 +133,13 @@ class ProductController extends Controller
         else $product->delete();
 
         return response('Product deleted successfully', 200);
+    }
+    public function getDetailedCartItems(Request $request)
+    {
+        $productIds = $request->input('productIds');
+
+        $products = Product::whereIn('id', $productIds)->get();
+
+        return response()->json($products);
     }
 }

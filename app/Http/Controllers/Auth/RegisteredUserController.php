@@ -36,11 +36,11 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-    
-        
+
+
         event(new Registered($user));
 
-        Auth::guard('web')->login($user);
+        // Auth::guard('web')->login($user);
 
 
         $message = 'User created successfully';

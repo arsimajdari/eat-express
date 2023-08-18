@@ -15,7 +15,7 @@ class OrderController extends Controller
     public function index()
     {
         //
-            
+
     }
 
     /**
@@ -31,7 +31,6 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
         $user = Auth::user();
         $user->load('items.product');
 
@@ -77,20 +76,40 @@ class OrderController extends Controller
             return response('Some items were removed from your shopping cart because they have been changed or are no longer available', 400);
         }
 
-        if (!empty($validated['user-address'])) {
-            $address = ShippingAddress::where('number', $validated['user-address'])->firstOrFail();
-        } else {
-            $address = ShippingAddress::create(array_merge($validated, [
-                'number' => (new ShippingAddress())->generateUniqueCode()
-            ]));
-        }
-
+        // Create the order
         $order = Order::create([
             'number' => (new Order())->generateUniqueCode(),
             'user_id' => $user->id,
             'comment' => $validated['comment'],
         ]);
 
+        // Check if the user provided a shipping address
+        if (!empty($validated['address'])) {
+            // Create a new shipping address associated with the order
+            $address = ShippingAddress::create([
+                'user_id' => $user->id,
+                'order_id' => $order->id, // Associate the address with the order
+                'number' => (new ShippingAddress())->generateUniqueCode(),
+                'firstname' => $validated['firstname'],
+                'lastname' => $validated['lastname'],
+                'phone' => $validated['phone'],
+                'city' => $validated['city'],
+                'zip' => $validated['zip'],
+                'address' => $validated['address'],
+                'country' => $validated['country']
+            ]);
+        } elseif (!empty($validated['user-address'])) {
+            // Use an existing shipping address associated with the user
+            $address = ShippingAddress::where('number', $validated['user-address'])
+                ->where('user_id', $user->id)
+                ->firstOrFail();
+
+            // Associate the existing address with the current order
+            $address->order_id = $order->id;
+            $address->save();
+        }
+
+        // Create order items
         foreach ($user->items as $item) {
             $order->items()->create([
                 'order_id' => $order->id,
@@ -101,36 +120,15 @@ class OrderController extends Controller
             ]);
         }
 
-        $orderAddress = $address->replicate()->fill([
-            'order_id' => $order->id,
-            'number' => $address->generateUniqueCode(),
-        ]);
-
-        $orderAddress->save();
-
-        if ($validated['save'] ?? null != null) {
-            $address->user_id = $request->user()->id;
-            $address->save();
-        }
-
-        // Delete items in the customers cart
+        // Clear the user's cart
         $user->items()->delete();
 
-        // Send emails
-
-        // Mail::to($user)->queue(new OrderProcessed($order));
-
-
-        // Mail::to(User::has('roles')->get())->queue(new NewOrder($order));
-
-
-
         return response()->json([
-            "message"=>"Order created successfully",
+            "message" => "Order created successfully",
             "order_number" => $order->number,
-        ],200);
-
+        ], 200);
     }
+
 
     /**
      * Display the specified resource.

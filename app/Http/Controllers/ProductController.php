@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -17,8 +18,11 @@ class ProductController extends Controller
     public function index()
     {
 
-        return Product::all()->toJson();
+        $products = Product::with('subcategories')->get();
+
+        return ProductResource::collection($products);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -39,8 +43,8 @@ class ProductController extends Controller
             'sku' => ['required', 'string'],
             'description' => ['nullable', 'string'],
             'long_description' => ['nullable', 'string'],
-            // 'categories' => ['required', 'array'],
-            // 'categories.*' => ['integer', 'exists:subcategories,id'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'subcategory_id' => ['nullable', 'exists:subcategories,id'],
             'image_src' => ['required', 'string'],
             'price' => ['required', 'string'],
             'discount' => ['nullable', 'string'],
@@ -51,13 +55,13 @@ class ProductController extends Controller
 
 
         if (!is_null(Product::where('slug', Str::slug($validated['name']))->first()))
-            return response('error Product with same name already exists', 204);
+            return back()->with('error', 'Product with same name already exists');
 
         $product = Product::create(array_merge($validated, ['slug' => Str::slug($validated['name'])]));
 
-        // if (isset($validated['categories']))
-        //     $product->subcategories()->sync($validated['categories']);
-
+        if (isset($validated['subcategory_id'])) {
+            $product->subcategories()->sync($validated['subcategory_id']);
+        }
         // if ($request->hasFile('images')) {
         //     foreach ($request->file('images') as $file) {
         //         $path = $file->storePublicly('images', 'public');
@@ -86,9 +90,12 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
-        return $product->toJson();
+        $product->load('subcategories');
+
+        return new ProductResource($product);
     }
+
+
 
     /**
      * Show the form for editing the specified resource.

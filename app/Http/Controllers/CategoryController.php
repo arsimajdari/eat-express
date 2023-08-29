@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Subcategory;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -37,6 +38,18 @@ class CategoryController extends Controller
         Category::create($validated);
 
         return response('Category created successfully', 200);
+    }
+
+    public function storeSubcategory(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string'],
+            'category_id' => ['required', 'exists:categories,id'],
+        ]);
+
+        Subcategory::create($validated);
+
+        return response()->json(['message' => 'Subcategory created successfully'], 201);
     }
 
     /**

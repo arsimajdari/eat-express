@@ -42,7 +42,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('cart/add/{product}', [CartController::class, 'store']);
     Route::post('cart/clear', [CartController::class, 'clear']);
     Route::put('cart/update/{product_id}', [CartController::class, 'updateQuantity']);
-
 });
 
 //Products
@@ -59,6 +58,7 @@ Route::middleware(IsAdmin::class)->group(function () {
 
     // Categories
     Route::resource('categories', CategoryController::class);
+    Route::post('categories/subcategories', [CategoryController::class, 'storeSubcategory']);
 
     //Users
     Route::resource('users', UserController::class);

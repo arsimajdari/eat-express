@@ -20,7 +20,6 @@ class CartController extends Controller
         $userCart = CartItem::where('user_id', $user_id)->get();
 
         return response()->json($userCart);
-        
     }
 
     /**
@@ -124,7 +123,7 @@ class CartController extends Controller
             "quantity" => "required|integer|min:1",
         ]);
 
-        $cart_item = CartItem::where('product_id', $product_id)->firstOrFail();
+        $cart_item = $request->user()->items()->where('product_id', $product_id)->firstOrFail();
 
         $cart_item->quantity = $validated["quantity"];
         $cart_item->save(); // Save the changes

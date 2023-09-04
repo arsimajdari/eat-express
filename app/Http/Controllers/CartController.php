@@ -124,7 +124,6 @@ class CartController extends Controller
         ]);
 
         $cart_item = $request->user()->items()->where('product_id', $product_id)->firstOrFail();
-
         $cart_item->quantity = $validated["quantity"];
         $cart_item->save(); // Save the changes
 

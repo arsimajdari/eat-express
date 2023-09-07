@@ -88,12 +88,19 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show($slug)
     {
+        $product = Product::where('slug', $slug)->first();
+
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+
         $product->load('subcategories');
 
         return new ProductResource($product);
     }
+
 
 
 

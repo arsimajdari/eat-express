@@ -46,7 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 //Products
 Route::get('products', [ProductController::class, 'index']);
-Route::get('products/{product}', [ProductController::class, 'show']);
+Route::get('products/{slug}', [ProductController::class, 'show']);
 //Get the cart item for no users
 Route::post('/getDetailedCartItems', [ProductController::class, 'getDetailedCartItems']);
 

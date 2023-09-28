@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('slug', 255)->unique();
             $table->string('name');
+            $table->foreignIdFor(Category::class);
             $table->text('description')->nullable();
             $table->text('long_description')->nullable();
             $table->decimal('price', 10, 2)->nullable();

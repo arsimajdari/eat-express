@@ -53,8 +53,10 @@ Route::post('/getDetailedCartItems', [ProductController::class, 'getDetailedCart
 Route::middleware(IsAdmin::class)->group(function () {
 
     // Products
-    Route::post('products', [ProductController::class, 'store']);
-    Route::delete('products/{product}', [ProductController::class, 'destroy']);
+    // Route::post('products', [ProductController::class, 'store']);
+    // Route::delete('products/{product}', [ProductController::class, 'destroy']);
+
+    Route::resource('products',ProductController::class);
 
     // Categories
     Route::resource('categories', CategoryController::class);

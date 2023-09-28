@@ -55,7 +55,8 @@ class ProductController extends Controller
 
 
         if (!is_null(Product::where('slug', Str::slug($validated['name']))->first()))
-            return back()->with('error', 'Product with same name already exists');
+            return abort(response()->json(["error" => "Product with the same name already exists"], 409));
+
 
         $product = Product::create(array_merge($validated, ['slug' => Str::slug($validated['name'])]));
 
@@ -118,6 +119,24 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         //
+        $validated=$request->validate([
+            'name' => ['required', 'string'],
+            'sku' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
+            'long_description' => ['nullable', 'string'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'subcategory_id' => ['nullable', 'exists:subcategories,id'],
+            'image_src' => ['required', 'string'],
+            'price' => ['required', 'string'],
+            'discount' => ['nullable', 'string'],
+            'available' => ['boolean'],
+            'images' => ['array', 'nullable'],
+            'images.*' => ['image', 'nullable'],
+        ]);
+
+        $product->update($validated);
+        return response()->json(["Product updated successfully"]);
+
     }
 
     /**

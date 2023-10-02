@@ -6,6 +6,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShippingAddressController;
+use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Http\Request;
@@ -60,7 +61,7 @@ Route::middleware(IsAdmin::class)->group(function () {
 
     // Categories
     Route::resource('categories', CategoryController::class);
-    Route::post('categories/subcategories', [CategoryController::class, 'storeSubcategory']);
+    Route::resource('categories/subcategories',SubcategoryController::class);
 
     //Users
     Route::resource('users', UserController::class);

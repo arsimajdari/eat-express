@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Category;
+use App\Models\Product;
+use App\Models\Subcategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -15,15 +17,18 @@ class ProductFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
+    protected $model = Product::class;
+
+
+
     public function definition(): array
     {
         return [
-            "name"=>$this->faker->sentence(2),
+            'name' => $this->faker->sentence(2),
             'sku' => $this->faker->unique()->ean13,
             'description' => $this->faker->paragraph,
             'long_description' => $this->faker->paragraphs(3, true),
-            'category_id' => Category::factory(),
-
             'image_src' => $this->faker->imageUrl(),
             'price' => $this->faker->randomFloat(2, 10, 100),
             'discount' => $this->faker->randomFloat(2, 0, 20),

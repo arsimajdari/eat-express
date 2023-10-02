@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Models\Subcategory;
 use Illuminate\Http\Request;
@@ -14,7 +15,8 @@ class CategoryController extends Controller
     public function index()
     {
         //
-        return Category::all()->toJson();
+        $categories = Category::all();
+        return CategoryResource::collection($categories);
     }
 
     /**
@@ -30,50 +32,48 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validate the request data
         $validated = $request->validate([
             'name' => ['required', 'string'],
         ]);
 
-        Category::create($validated);
+        // Check if a category with the same name already exists
+        $existingCategory = Category::where('name', $validated['name'])->first();
 
-        return response('Category created successfully', 200);
+        if ($existingCategory) {
+            return response()->json(['error' => 'Category with the same name already exists'], 409);
+        }
+
+        // Create the category if it doesn't exist
+        $category = Category::create($validated);
+
+        return new CategoryResource($category);
     }
 
-    public function storeSubcategory(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string'],
-            'category_id' => ['required', 'exists:categories,id'],
-        ]);
-
-        Subcategory::create($validated);
-
-        return response()->json(['message' => 'Subcategory created successfully'], 201);
-    }
 
     /**
      * Display the specified resource.
      */
     public function show(Category $category)
     {
-        //
+        return new CategoryResource($category);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category)
-    {
-        //
-    }
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $validated = $request->validate([
+            "name" => ['string', 'required', 'unique:categories,name,' . $category->id],
+        ]);
+
+
+        $category->update($validated);
+
+        return new CategoryResource($category);
     }
 
     /**

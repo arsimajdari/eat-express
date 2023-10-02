@@ -25,6 +25,8 @@ class Product extends Model
         'sku',
         'available',
         'image_src',
+        'category_id',
+        'subcategory_id'
     ];
 
     protected $casts = [
@@ -43,10 +45,16 @@ class Product extends Model
         });
     }
 
-    public function subcategories()
+    public function category(): BelongsTo
     {
-        return $this->belongsToMany(Subcategory::class, 'product_subcategory');
+        return $this->belongsTo(Category::class);
     }
+
+    public function subcategory(): BelongsTo
+    {
+        return $this->belongsTo(Subcategory::class);
+    }
+
 
 
     public function images()

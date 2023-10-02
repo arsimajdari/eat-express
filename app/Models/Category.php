@@ -14,9 +14,14 @@ class Category extends Model
         'name',
     ];
 
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
     public function subcategories(): HasMany
     {
-        return $this->hasMany(Subcategory::class, 'product_subcategory');
+        return $this->hasMany(Subcategory::class);
     }
 
     public function images(): HasMany

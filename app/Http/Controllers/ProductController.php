@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductResource;
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\Subcategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +19,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-
-        $products = Product::with('subcategories')->get();
-
+        $products = Product::all();
         return ProductResource::collection($products);
     }
 
@@ -53,27 +53,27 @@ class ProductController extends Controller
             'images.*' => ['image', 'nullable'],
         ]);
 
-
-        if (!is_null(Product::where('slug', Str::slug($validated['name']))->first()))
+        if (!is_null(Product::where('slug', Str::slug($validated['name']))->first())) {
             return abort(response()->json(["error" => "Product with the same name already exists"], 409));
+        }
 
+        // After validating the request, check if the category and subcategory are related
+        if (isset($validated['subcategory_id'])) {
+            $category = Category::find($validated['category_id']);
+            $subcategory = Subcategory::find($validated['subcategory_id']);
 
+            // Check if the category and subcategory exist and are related
+            if (!$category || !$subcategory || $category->id !== $subcategory->category_id) {
+                return response()->json(['error' => 'Invalid category or subcategory relationship'], 422);
+            }
+        }
+
+        // Create the product if everything is valid
         $product = Product::create(array_merge($validated, ['slug' => Str::slug($validated['name'])]));
 
         if (isset($validated['subcategory_id'])) {
-            $product->subcategories()->sync($validated['subcategory_id']);
+            $product->subcategory()->associate($subcategory);
         }
-        // if ($request->hasFile('images')) {
-        //     foreach ($request->file('images') as $file) {
-        //         $path = $file->storePublicly('images', 'public');
-
-        //         $image = Image::create([
-        //             'path' => $path,
-        //         ]);
-
-        //         $product->images()->save($image);
-        //     }
-        // }
 
         // Calculate 18% VAT from gross price
         $price = $product->discount ?? $product->price;
@@ -81,7 +81,7 @@ class ProductController extends Controller
 
         $product->save();
 
-        return response('Product created successfully', 200);
+        return new ProductResource($product);
     }
 
 
@@ -97,8 +97,6 @@ class ProductController extends Controller
             return response()->json(['error' => 'Product not found'], 404);
         }
 
-        $product->load('subcategories');
-
         return new ProductResource($product);
     }
 
@@ -106,20 +104,12 @@ class ProductController extends Controller
 
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Product $product)
     {
         //
-        $validated=$request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string'],
             'sku' => ['required', 'string'],
             'description' => ['nullable', 'string'],
@@ -135,8 +125,7 @@ class ProductController extends Controller
         ]);
 
         $product->update($validated);
-        return response()->json(["Product updated successfully"]);
-
+        return new ProductResource($product);
     }
 
     /**
@@ -144,35 +133,19 @@ class ProductController extends Controller
      */
     public function destroy(Product $product, Request $request)
     {
-        // $action = $request->input('action'); // Get the action from the request
-
-        // $cart = auth()->user()->cart; // Get the cart for the logged-in user
-
-        // if ($action === 'decrease') {
-        //     $currentQuantity = $cart->products()->where('product_id', $product->id)->first()->pivot->quantity;
-
-        //     if ($currentQuantity > 1) {
-        //         $cart->products()->updateExistingPivot($product->id, ['quantity' => DB::raw('quantity - 1')]);
-        //     } else {
-        //         $cart->products()->detach($product->id);
-        //     }
-        // } elseif ($action === 'remove') {
-        //     $cart->products()->detach($product->id);
-        // }
-
-        // return response('Product action performed successfully');
 
         if ($product->trashed()) $product->forceDelete();
         else $product->delete();
 
         return response('Product deleted successfully', 200);
     }
+
     public function getDetailedCartItems(Request $request)
     {
         $productIds = $request->input('productIds');
 
         $products = Product::whereIn('id', $productIds)->get();
 
-        return response()->json($products);
+        return ProductResource::collection($products);
     }
 }

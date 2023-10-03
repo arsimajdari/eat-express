@@ -45,24 +45,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('cart/update/{product_id}', [CartController::class, 'updateQuantity']);
 });
 
-//Products routes for guests
+//Products routes for guests and authenticated users also
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/{slug}', [ProductController::class, 'show']);
 //Get the cart item for no users
 Route::post('/getDetailedCartItems', [ProductController::class, 'getDetailedCartItems']);
+
+Route::get('products/category/{categoryId}', [ProductController::class, 'getByCategory']);
+Route::get('products/category/{categoryId}/subcategory/{subcategoryId}', [ProductController::class, 'getByCategoryAndSubcategory']);
 
 Route::middleware(IsAdmin::class)->group(function () {
 
     // Route::resource('products',ProductController::class);
 
     //Product routes for admin
-    Route::post('/products',[ProductController::class,'store']);
-    Route::put('/products/{product}',[ProductController::class,'update']);
-    Route::delete('/products/{product}',[ProductController::class,'delete']);
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/{product}', [ProductController::class, 'update']);
+    Route::delete('/products/{product}', [ProductController::class, 'delete']);
 
     // Categories route for admin
     Route::resource('categories', CategoryController::class);
-    Route::resource('categories/subcategories',SubcategoryController::class);
+    Route::resource('categories/subcategories', SubcategoryController::class);
 
     //Users
     Route::resource('users', UserController::class);

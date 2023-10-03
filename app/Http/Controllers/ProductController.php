@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Js;
 
 class ProductController extends Controller
 {
@@ -24,14 +24,7 @@ class ProductController extends Controller
     }
 
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
 
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -145,6 +138,28 @@ class ProductController extends Controller
         $productIds = $request->input('productIds');
 
         $products = Product::whereIn('id', $productIds)->get();
+
+        return ProductResource::collection($products);
+    }
+
+    public function getByCategory(Request $request)
+    {
+        $categoryId = $request->categoryId;
+
+
+        $products = Product::where('category_id', $categoryId)->get();
+
+
+        return ProductResource::collection($products);
+    }
+
+
+    public function getByCategoryAndSubcategory(Request $request)
+    {
+        $categoryId = $request->categoryId;
+        $subcategoryId = $request->subcategoryId;
+
+        $products = Product::where('category_id', $categoryId)->where('subcategory_id', $subcategoryId)->get();
 
         return ProductResource::collection($products);
     }

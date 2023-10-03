@@ -30,8 +30,8 @@ class ProductResource extends JsonResource
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
             'images' => $this->images,
-            'category' => new CategoryResource($this->whenLoaded('category')),
-            'subcategory' => new SubcategoryResource($this->whenLoaded('subcategory')),
+            'category' => new CategoryResource($this->category),
+            'subcategory' => new SubcategoryResource($this->subcategory),
         ];
     }
 }

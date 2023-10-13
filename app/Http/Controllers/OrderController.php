@@ -72,9 +72,9 @@ class OrderController extends Controller
             }
         }
 
-        if ($removedItems) {
-            return response('Some items were removed from your shopping cart because they have been changed or are no longer available', 400);
-        }
+        // if ($removedItems) {
+        //     return response('Some items were removed from your shopping cart because they have been changed or are no longer available', 400);
+        // }   //TODO : removedItems is always true because database seeders make some products that are not available
 
         // Create the order
         $order = Order::create([

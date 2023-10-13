@@ -51,14 +51,10 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        if ($this->roles()->where('name', 'admin')->exists()) return true;
+        return $this->roles()->where('name', 'admin')->exists();
     }
 
-    public function getNameAttribute()
-    {
-        return $this->attributes['firstname'] . ' ' . $this->attributes['lastname'];
-    }
-
+    
 
     public function roles(): BelongsToMany
     {
@@ -76,21 +72,6 @@ class User extends Authenticatable
     public function shippingAddress(): HasMany
     {
         return $this->hasMany(ShippingAddress::class)->whereNull('order_id')->latest();
-    }
-
-
-    public function total()
-    {
-        $total = 0;
-
-        foreach ($this->items as $item) $total += $item->price * $item->quantity;
-
-        return $total;
-    }
-
-    public function cartSize()
-    {
-        return $this->items()->sum('quantity');
     }
 
     public function hasShipping()

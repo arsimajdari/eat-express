@@ -55,8 +55,8 @@ class CartController extends Controller
                 'user_id' => $user->id,
                 'product_id' => $product->id,
                 'name' => $product->name,
-                'price' => $product->discount ? $product->discount : $product->price,
-                'tax' => $product->tax,
+                'price' => $product->price,
+                'tax' => $product->tax || " ", //TODO FIX THE TAX
                 'quantity' => $validated['quantity'],
                 'description' => $product->description,
                 'image_src' => $product->image_src,

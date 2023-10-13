@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('orders', OrderController::class);
 
     // Addresses
-    // Route::resource('addresses', ShippingAddressController::class);
+    Route::resource('address', ShippingAddressController::class);
 
     // Cart
     Route::resource('cart', CartController::class);
@@ -75,4 +75,8 @@ Route::middleware(IsAdmin::class)->group(function () {
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::middleware(IsAdmin::class)->get('/admin', function (Request $request) {
+    return $request->user()->isAdmin();
 });

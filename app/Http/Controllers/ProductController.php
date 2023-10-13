@@ -69,8 +69,8 @@ class ProductController extends Controller
         }
 
         // Calculate 18% VAT from gross price
-        $price = $product->discount ?? $product->price;
-        $product->tax = (($price / 1.18) - $price) * -1;
+        // $price = $product->discount ?? $product->price;
+        // $product->tax = (($price / 1.18) - $price) * -1;
 
         $product->save();
 
@@ -101,7 +101,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+
         $validated = $request->validate([
             'name' => ['required', 'string'],
             'sku' => ['required', 'string'],
@@ -135,7 +135,9 @@ class ProductController extends Controller
 
     public function getDetailedCartItems(Request $request)
     {
-        $productIds = $request->input('productIds');
+        $productIds = $request->productIds;
+
+        return response()->json(["productIds" => $productIds]);
 
         $products = Product::whereIn('id', $productIds)->get();
 

@@ -21,28 +21,28 @@ class ShippingAddress extends Model
         'zip',
         'country',
         'address',
-      ];
+    ];
 
 
-       /* Relations */
-  public function user()
-  {
-    return $this->belongsTo(User::class, 'user_id');
-  }
+    /* Relations */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
-  public function order()
-  {
-    return $this->belongsTo(Order::class, 'order_id');
-  }
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
+    }
 
     public function generateUniqueCode()
     {
-    do {
-      $code = Str::lower(Str::random(10));
+        do {
+            $code = Str::lower(Str::random(10));
 
-      $existing = ShippingAddress::where('number', $code)->first();
-    } while (!is_null($existing));
+            $existing = ShippingAddress::where('number', $code)->first();
+        } while (!is_null($existing));
 
-    return $code;
+        return $code;
     }
 }

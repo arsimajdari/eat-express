@@ -45,8 +45,8 @@ class PageController extends Controller
                     'user_id' => $user->id,
                     'product_id' => $product->id,
                     'name' => $product->name,
-                    'price' => $product->discount ? $product->discount : $product->price,
-                    'tax' => $product->tax,
+                    'price' => $product->price,
+                    'tax' => $product->tax || " ",
                     'quantity' => $quantity,
                     'description' => $product->description,
                     'image_src' => $product->image_src,
@@ -57,17 +57,4 @@ class PageController extends Controller
         return response("Items added to cart successfully", 200);
     }
 
-
-    public function builder()
-    {
-        $categories = Category::with('subcategories')->get();
-        $products = Product::all();
-        return response()->json([
-            "categories" => $categories,
-            "products" => $products,
-            "hub" => $products->first(function ($value, $key) {
-                return $value->sky == 'HH100';
-            }),
-        ]);
-    }
 }

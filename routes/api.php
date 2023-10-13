@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Pages
     Route::post('checkout', [PageController::class, 'checkout'])->name('checkout');
-    Route::get('builder', [PageController::class, 'builder'])->name('builder');
+  
 
     // Orders
     Route::resource('orders', OrderController::class);

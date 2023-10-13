@@ -34,19 +34,6 @@ class OrderController extends Controller
         $user = Auth::user();
         $user->load('items.product');
 
-        $validated = $request->validate([
-            'firstname' => ['nullable', 'string'],
-            'lastname' => ['nullable', 'string'],
-            'phone' => ['nullable', 'string'],
-            'address' => ['nullable', 'string'],
-            'city' => ['nullable', 'string'],
-            'zip' => ['nullable', 'string'],
-            'country' => ['nullable', 'string'],
-            'save' => ['nullable'],
-            'comment' => ['nullable', 'string'],
-            'user-address' => ['nullable', 'string', 'exists:shipping_addresses,number'],
-        ]);
-
         // Safety checks
         $removedItems = 0;
 
@@ -76,6 +63,22 @@ class OrderController extends Controller
         //     return response('Some items were removed from your shopping cart because they have been changed or are no longer available', 400);
         // }   //TODO : removedItems is always true because database seeders make some products that are not available
 
+
+
+        $validated = $request->validate([
+            'firstname' => ['nullable', 'string'],
+            'lastname' => ['nullable', 'string'],
+            'phone' => ['nullable', 'string'],
+            'address' => ['nullable', 'string'],
+            'city' => ['nullable', 'string'],
+            'zip' => ['nullable', 'string'],
+            'country' => ['nullable', 'string'],
+            'comment' => ['nullable', 'string'],
+            'user-address' => ['nullable', 'string', 'exists:shipping_addresses,number'],
+        ]);
+
+
+
         // Create the order
         $order = Order::create([
             'number' => (new Order())->generateUniqueCode(),
@@ -100,6 +103,7 @@ class OrderController extends Controller
             ]);
         } elseif (!empty($validated['user-address'])) {
             // Use an existing shipping address associated with the user
+
             $address = ShippingAddress::where('number', $validated['user-address'])
                 ->where('user_id', $user->id)
                 ->firstOrFail();
@@ -140,7 +144,7 @@ class OrderController extends Controller
 
         abort_unless($order->user()->is($user), 404);
 
-        $order->load('items.product');
+        $order->load('items.product')->with('shippingAddress');
 
         return response()->json([
             "order" => $order,

@@ -135,9 +135,7 @@ class ProductController extends Controller
 
     public function getDetailedCartItems(Request $request)
     {
-        $productIds = $request->productIds;
-
-        return response()->json(["productIds" => $productIds]);
+        $productIds = $request->input('productIds');
 
         $products = Product::whereIn('id', $productIds)->get();
 

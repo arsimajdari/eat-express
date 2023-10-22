@@ -26,11 +26,11 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Pages
     Route::post('checkout', [PageController::class, 'checkout'])->name('checkout');
-  
+
 
     // Orders
     Route::resource('orders', OrderController::class);

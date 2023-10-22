@@ -83,7 +83,7 @@ class OrderController extends Controller
         $order = Order::create([
             'number' => (new Order())->generateUniqueCode(),
             'user_id' => $user->id,
-            'comment' => $validated['comment'],
+            'comment' => $validated['comment'] || " ",
         ]);
 
         // Check if the user provided a shipping address
